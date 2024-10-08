@@ -24,22 +24,28 @@ const thoughtController = {
 
 	// Create a new thought
 	createThought(req, res) {
-		Thought.create(req.body)
-			.then((thought) => {
-				return User.findOneAndUpdate(
-					{ _id: req.body.userId },
-					{ $push: { thoughts: thought._id } },
-					{ new: true }
-				);
+		User.findById(req.body.userId)
+			.then((user) => {
+				if (!user) {
+					// If no user is found, return an error and stop
+					return res
+						.status(404)
+						.json({ message: 'No user found with that ID' });
+				}
+
+				return Thought.create(req.body)
+					.then((thought) => {
+						// After creating the thought, update the user's thought array
+						return User.findOneAndUpdate(
+							{ _id: req.body.userId },
+							{ $push: { thoughts: thought._id } },
+							{ new: true }
+						);
+					})
+					.then(() => {
+						res.json('Created the thought!');
+					});
 			})
-			.then((user) =>
-				!user
-					? res.status(404).json({
-							message:
-								'Thought created, but found no user with that ID',
-					  })
-					: res.json('Created the thought!')
-			)
 			.catch((err) => res.status(500).json(err));
 	},
 
