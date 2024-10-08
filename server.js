@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('./config/connection');
 const routes = require('./routes');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -16,4 +17,4 @@ db.once('open', () => {
 });
 
 const mongoose = require('mongoose');
-mongoose.set('strictQuery', true);
+mongoose.set('strictQuery', false);
